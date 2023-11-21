@@ -1,44 +1,29 @@
-# Training GPT-2 on the Tiny Shakspeare dataset
+# Finetune GPT-2 to produce midi songs 
 
-- `preprocess.py` - Preprocessing the tiny Shakespeare dataset into JSON files.
+- `midi_loop` - Convert midi files to text files
+- `preprocess.py` - Preprocessing the midi text files to a dataset of JSON files.
 - `dataloader.py`- Transforming preprocessed JSON datasets into PyTorch Dataloaders.
 - `model.py` - Model-specific code for training.
 - `inference.py` - Model-specific code for inference (decoding algorithms etc.).
 - `train.py` - Running training.
-- `decode.py` - Running batch inference on dev / test splits.
 - `interact.py` - Running interactive inference with user input.
 
-
-## Examples: Language Modeling
-
-### Interactive Prompting with (pre-traind) GPT-2
+### Finetuning GPT-2 on Midi files
+Convert the midi archive to their text presresentation:
 ```
-./interact.py \
-    --model_name gpt2  \
-    --max_length 200
+./midi_loop.sh
 ```
-
-```
-[In]: Good morning!
-[Out]:
-['Good morning! I hope you all enjoyed my breakfast in the café. We are '
- 'working with the media and I will provide more updates about the situation '
- 'in your home and our working plans after the election, as well as an update '
- 'on where our progress is going. My name is Richard Coughlin and I was in '
- 'your office for our first business meeting.\n' (...)]
-```
-
-### Finetuning GPT-2 on Tiny Shakespeare
+Process the midi txt files into train/validation/test datasets:
 ```
 ./preprocess.py \
-    --dataset "tiny_shakespeare.txt"  \
-    --dataset_dir "data/orig/" \
-    --output "data/tiny_shakespeare"
+    --input data/archive  \
+    --output "data/data"
 ```
+Fine tune GPT-2:
 ```
 ./train.py \
-    --in_dir data/tiny_shakespeare \
-    --experiment tiny_shakespeare \
+    --in_dir data/data \
+    --experiment midi \
     --num_nodes 1 \
     --model_name gpt2 \
     --accumulate_grad_batches 4 \
@@ -51,32 +36,26 @@ Models are saved in the file `out_dir/experiment/checkpoint_name` which can be s
 To resume from a checkpoint: 
 ```
 ./train.py \ 
-    --in_dir data/tiny_shakespeare \
-    --experiment tiny_shakespeare-2 \
+    --in_dir data/data \
+    --experiment midi \
     --model_name gpt2 \
     --num_nodes 1 \
     --accumulate_grad_batches 4 \
     --learning_rate 5e-4 \
-    --max_epochs 10 --model_path experiments/tiny_shakespeare/model.ckpt --resume_training
+    --max_epochs 10 --model_path experiments/midi/model.ckpt --resume_training
 ```
 
 Not that the amount of epochs that are run in the resumed training is max_epochs - trained epochs.
 
 
-### Generating Shakespeare using GPT-2
+### Generating midi text using GPT-2
 
+```
 ./interact.py \
-    --experiment tiny_shakespeare \
+    --experiment midi \
     --max_length 200 --mps
 ```
 **Example output**
 ```
-[In]: Good morning! 
-[Out]:
-['Good morning! \n'
- '\n'
- 'PETRUCHIO:\n'
- 'And thou shalt have a father till she speak,\n'
- "For my son's sake be ready,\n"
- "I charge thee, be thou ready at five o'clock.\n" (...)]
+...
 ```

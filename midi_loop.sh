@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# FUCK MAC 😡😡😡😡
 export LC_CTYPE=C
 export LANG=C
 

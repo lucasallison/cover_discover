@@ -40,7 +40,11 @@ class MidiDataset:
 
                 logger.info('Processing = ' + path)
                 with open(path, 'r') as midi_txt_file:
-                    line = midi_txt_file.readline()
+                    try:
+                        line = midi_txt_file.readline()
+                    except:
+                        logger.error(f"Error reading file {path} (ignoring)")
+                        continue
                     tokens = line.split(' ')
                     
                     while len(tokens) > 0:
@@ -49,9 +53,9 @@ class MidiDataset:
                         tokens = tokens[block_size:]
 
                 processed_files += 1
-                if self.max_files is not None and processed_files >= self.max_files:
-                    break
 
+            if self.max_files is not None and processed_files >= self.max_files:
+                break
 
         train, val_test = train_test_split(all_blocks, test_size=0.4)
         validation, test = train_test_split(val_test, test_size=0.5) 
@@ -98,11 +102,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, default=True, help="Base directory of the midi files converted to text")
     parser.add_argument("--output", type=str, required=True, help="Name of the output directory")
-    parser.add_argument("--max_files", type=str, default=None, help="Maximum number of files to process")
+    parser.add_argument("--max_files", type=int, default=None, help="Maximum number of files to process")
 
     args = parser.parse_args()
     logger.info(args)
-    dataset = MidiDataset(path=args.input)
+    dataset = MidiDataset(path=args.input, max_files=args.max_files)
 
     try:
         dataset.load(splits=SPLITS, path=args.output)
