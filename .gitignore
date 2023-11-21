@@ -162,5 +162,3 @@ cython_debug/
 archive/
 
 *.DS_Store
-
-*.midi
