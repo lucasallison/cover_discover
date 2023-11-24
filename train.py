@@ -107,8 +107,7 @@ def get_trainer(args, checkpoint_callback):
     # trainer = pl.Trainer.from_argparse_args(
     #     args,
     #     callbacks=[checkpoint_callback],
-    #     strategy="dp",
-    #     resume_from_checkpoint=resume_from_checkpoint,
+    #     strategy="auto",
     # )
 
     trainer = pl.Trainer(

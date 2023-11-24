@@ -16,7 +16,6 @@ from torch.optim import (
 
 logger = logging.getLogger(__name__)
 
-
 def add_special_tokens(tokenizer, model, tokens):
     """
     Allows to add custom special tokens to the model vocabulary.

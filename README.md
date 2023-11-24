@@ -45,10 +45,9 @@ To resume from a checkpoint:
     --max_epochs 10 --model_path experiments/midi/model.ckpt --resume_training
 ```
 
-Not that the amount of epochs that are run in the resumed training is max_epochs - trained epochs.
+Note that the amount of epochs that are run in the resumed training is max_epochs - trained epochs.
 
-
-### Generating midi text using GPT-2
+### Interacting with the (fine-tuned) GPT-2 model
 
 ```
 ./interact.py \
@@ -58,4 +57,17 @@ Not that the amount of epochs that are run in the resumed training is max_epochs
 **Example output**
 ```
 ...
+```
+
+### Generate a 'cover' from an input midi string
+
+```
+./generate_mid_from_str.py \
+    --experiment midi \
+    --input "<start> ... <end>" \
+    --output out_mid.txt \
+    --max_length 200 \
+    --beam_size 2 \
+    --mps \
+    -v 
 ```
