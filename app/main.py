@@ -53,5 +53,5 @@ while True:
     musescore_open(get_score_file())
 
     res = input('Do you want to regenerate another pass?: ')
-    if res not in {'y', 'Y', 'yes', 'YES'}:
+    if res.lower() not in {'y', 'yes'}:
         break
