@@ -38,8 +38,11 @@ class InferenceModule:
         elif hasattr(self.args, "mps") and self.args.mps:
             mps_device = torch.device("mps")
             return self.generate(inputs["input_ids"].detach().clone().to(mps_device))
+        elif hasattr(self.args, "cpu") and self.args.cpu:
+            cpu_device = torch.device("cpu")
+            return self.generate(inputs["input_ids"].detach().clone().to(cpu_device))
         else:
-            logger.warning("Not using GPU or MPS")
+            logger.warning("GPU, MPS, or CPU not specified")
 
         return self.generate(inputs["input_ids"])
 

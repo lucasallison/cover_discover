@@ -96,6 +96,7 @@ if __name__ == "__main__":
     parser.add_argument("--beam_size", default=5, type=int, help="Beam size.")
     parser.add_argument("--gpus", default=0, type=int, help="Number of GPUs.")
     parser.add_argument("--mps", action='store_true', help="Use MPS.")
+    parser.add_argument("--cpu", action='store_true', help="Use CPU.")
     parser.add_argument(
         "--max_length",
         type=int,
