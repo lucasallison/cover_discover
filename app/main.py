@@ -20,11 +20,11 @@ def generate_new_midi():
     os.system(f"""
     ../generate_mid_from_str.py \
         --experiment midi \
-        --input "$(python ../MIDI-LLM-tokenizer/midi_to_str.py test.mid)" \
+        --input "$(python ../MIDI-LLM-tokenizer/midi_to_str.py model_input.mid)" \
         --output out_mid.txt \
         --max_length 200 \
         --beam_size 2 \
-        --mps \
+        --cpu \
         -v
     """)
     os.system('python ../MIDI-LLM-tokenizer/str_to_midi.py "$(cat out_mid.txt)" --output model_output.mid')
@@ -38,7 +38,7 @@ convert(midi_file, get_score_file())
 
 print('We are opening the score in MuseScore, only leave the parts that you want to be included in as inspiritation')
 musescore_open(get_score_file())
-input('Press enter to continue: ')
+#input('Press enter to continue: ')
 
 while True:
     print('Generating MIDI based on input...')
@@ -55,3 +55,5 @@ while True:
     res = input('Do you want to regenerate another pass?: ')
     if res.lower() not in {'y', 'yes'}:
         break
+
+convert(get_score_file(), 'output.mid')
