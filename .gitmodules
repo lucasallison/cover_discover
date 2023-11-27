@@ -1,3 +1,3 @@
 [submodule "MIDI-LLM-tokenizer"]
 	path = MIDI-LLM-tokenizer
-	url = https://github.com/briansemrau/MIDI-LLM-tokenizer.git
+	url = git@github.com:lieuwex/MIDI-LLM-tokenizer.git
