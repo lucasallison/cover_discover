@@ -1,0 +1,12 @@
+pygame
+
+music21
+ms3
+
+tokenizers
+transformers
+mido
+tqdm
+
+torch
+pytorch_lightning
