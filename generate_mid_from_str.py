@@ -70,6 +70,8 @@ def clean_midi_str(input):
 
 
 if __name__ == "__main__":
+    curr_dir = os.path.dirname(os.path.realpath(__file__))
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--exp_dir",
@@ -143,7 +145,7 @@ if __name__ == "__main__":
 
 
     if args.experiment:
-        model_path = os.path.join(args.exp_dir, args.experiment, args.checkpoint)
+        model_path = os.path.join(curr_dir, args.exp_dir, args.experiment, args.checkpoint)
         midi_model = InferenceModule(args, model_path=model_path)
 
     elif args.model_name:
