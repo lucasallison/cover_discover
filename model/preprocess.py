@@ -63,21 +63,6 @@ class MidiDataset:
         self.data = {"train": train, "validation": validation, "test": test}
 
 class Preprocessor:
-    """
-    By default, a directory with processed dataset will contain the files `train.json`, `dev.json`, `test.json`,
-    each file with the following structure:
-    {
-        "data" : [
-            {... data entry #1 ...},
-            {... data entry #2 ...},
-            .
-            .
-            .
-            {... data entry #N ...},
-        ]
-    }
-    This format is expected for loading the data into PyTorch dataloaders for training and inference.
-    """
 
     def __init__(self, dataset, out_dirname):
         self.dataset = dataset

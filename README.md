@@ -1,12 +1,27 @@
-# Finetune GPT-2 to produce midi songs 
+# Audio Processing and Indexing Final Project
 
-- `midi_loop` - Convert midi files to text files
-- `preprocess.py` - Preprocessing the midi text files to a dataset of JSON files.
-- `dataloader.py`- Transforming preprocessed JSON datasets into PyTorch Dataloaders.
-- `model.py` - Model-specific code for training.
-- `inference.py` - Model-specific code for inference (decoding algorithms etc.).
-- `train.py` - Running training.
-- `interact.py` - Running interactive inference with user input.
+This is the repository that contains our code for the final project of the API course. Here we explored the possibility of generating a midi cover using transformers.
+
+## Cover Discover: Running the app
+
+Before running the app make sure the pip requirements are installed (`pip install -r requirements.txt`) and musescore (`sudo apt-get install musescore`). Then it can be run with `python app/main.py`.  
+
+For Mac and Linux users: run `python app/play_midi.py my_song.mid` to play the generated midi file.
+
+
+## Fine-tune GPT-2 to produce midi songs 
+
+The following files in the `model` directory can be used to fine-tune and interact with a transformer. We choose to use GPT-2.
+
+- `midi_to_txt` - Convert midi files to txt files
+- `preprocess.py` - Preprocessing the midi txt files to a dataset of JSON files.
+- `dataloader.py`- Transform preprocessed JSON datasets into PyTorch Dataloaders.
+- `model.py` - Contains the Lightning training module.
+- `inference.py` - Code for inference (generating text)
+- `train.py` - Train the model.
+- `interact.py` - Interact with the model. This mostly for testing. 
+- `generate_mid_form_str.py` - Produces a valid midi txt string from a given input.
+
 
 ### Finetuning GPT-2 on Midi files
 Convert the midi archive to their text presresentation:
@@ -47,18 +62,6 @@ To resume from a checkpoint:
 
 Note that the amount of epochs that are run in the resumed training is max_epochs - trained epochs.
 
-### Interacting with the (fine-tuned) GPT-2 model
-
-```
-./interact.py \
-    --experiment midi \
-    --max_length 200 --mps
-```
-**Example output**
-```
-...
-```
-
 ### Generate a 'cover' from an input midi string
 
 ```
@@ -70,4 +73,14 @@ Note that the amount of epochs that are run in the resumed training is max_epoch
     --beam_size 2 \
     --mps \
     -v 
+```
+
+### Interacting with the (fine-tuned) GPT-2 model
+
+To test the model interactively the following command can be used:
+
+```
+./interact.py \
+    --experiment midi \
+    --max_length 200 --mps
 ```
