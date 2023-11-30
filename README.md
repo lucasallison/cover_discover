@@ -22,18 +22,22 @@ The following files in the `model` directory can be used to fine-tune and intera
 - `interact.py` - Interact with the model. This mostly for testing. 
 - `generate_mid_form_str.py` - Produces a valid midi txt string from a given input.
 
-
 ### Finetuning GPT-2 on Midi files
+
 Convert the midi archive to their text presresentation:
 ```
 ./midi_loop.sh
 ```
-Process the midi txt files into train/validation/test datasets:
+
+Note that it assumes the midi files to be stored under the folder named `data/archive` and will convert them into the directory `data/output`. Subfolder can be used, e.g., the file `data/archive/sub/example.mid` will be converted to `data/output/sub/example.txt`.
+
+Subsequently process the midi txt files into train/validation/test datasets:
 ```
 ./preprocess.py \
     --input data/archive  \
     --output "data/data"
 ```
+
 Fine tune GPT-2:
 ```
 ./train.py \
