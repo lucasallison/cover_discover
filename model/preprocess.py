@@ -41,8 +41,9 @@ class MidiDataset:
 
                 logger.info('Processing = ' + path)
                 with open(path, 'r') as midi_txt_file:
-
-                    for line in midi_txt_file:
+                    
+                    lines = midi_txt_file.readlines()[1:]
+                    for line in lines:
                         block += line
                     
                         if len(block) > max_chars:
