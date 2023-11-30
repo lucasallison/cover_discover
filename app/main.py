@@ -40,9 +40,14 @@ def generate_new_midi():
     fiter += 1
     convert(f'{curr_dir}/model_output.mid', get_score_file())
 
-# Initial conversion of the input midi file to the first score file
-midi_file = sys.argv[1]
-convert(midi_file, get_score_file())
+if len(sys.argv) > 1:
+    # Initial conversion of the input midi file to the first score file
+    midi_file = sys.argv[1]
+    convert(midi_file, get_score_file())
+else:
+    # If no MIDI file is given, start with empty project.
+    os.system(f"cp {curr_dir}/empty.mscz {get_score_file()}")
+
 
 print('We are opening the score in MuseScore, only leave the parts that you want to be included in as inspiritation')
 musescore_open(get_score_file())
