@@ -33,7 +33,7 @@ def is_valid_midi_str(input, full_song=False):
         logger.exception(f'Full midi song must start with <start> and end with <end>')
         return False
     
-    # If we are not checking full songs we still 
+    # If we are not checking full songs we still want
     # inputs that start with <start> en end with <end>
     # to be considered as valid
     if not full_song and re.match(r'^<start>$', tokens[0]):
