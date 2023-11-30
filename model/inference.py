@@ -37,9 +37,11 @@ class InferenceModule:
                 inputs[key] = inputs[key].cuda()
         elif hasattr(self.args, "mps") and self.args.mps:
             mps_device = torch.device("mps")
+            self.model.to(mps_device)
             return self.generate(inputs["input_ids"].detach().clone().to(mps_device))
         elif hasattr(self.args, "cpu") and self.args.cpu:
             cpu_device = torch.device("cpu")
+            self.model.to(cpu_device)
             return self.generate(inputs["input_ids"].detach().clone().to(cpu_device))
         else:
             logger.warning("GPU, MPS, or CPU not specified")
