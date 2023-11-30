@@ -15,7 +15,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
 
