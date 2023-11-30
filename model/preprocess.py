@@ -29,10 +29,11 @@ class MidiDataset:
         self.max_files = max_files
 
     def load(self, splits, path=None):
-        block_size = 1024
+        max_chars = 1024
         all_blocks = []
         processed_files = 0
 
+        block = ""
         walk_dir = os.path.abspath(self.path)
         for r, _, files in os.walk(walk_dir):
             for f in files:
@@ -40,17 +41,13 @@ class MidiDataset:
 
                 logger.info('Processing = ' + path)
                 with open(path, 'r') as midi_txt_file:
-                    try:
-                        line = midi_txt_file.readline()
-                    except:
-                        logger.error(f"Error reading file {path} (ignoring)")
-                        continue
-                    tokens = line.split(' ')
+
+                    for line in midi_txt_file:
+                        block += line
                     
-                    while len(tokens) > 0:
-                        block = tokens[0 : min(block_size, len(tokens))]
-                        all_blocks.append(' '.join(block))
-                        tokens = tokens[block_size:]
+                        if len(block) > max_chars:
+                            all_blocks.append(block)
+                            block = ""
 
                 processed_files += 1
 

@@ -1,5 +1,6 @@
 pygame
 
+pandas
 music21
 ms3
 
