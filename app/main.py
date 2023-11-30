@@ -4,9 +4,11 @@ import os
 import sys
 import time
 
+curr_dir = os.path.dirname(os.path.realpath(__file__))
+
 fiter = 0
 def get_score_file():
-    return f'score_{fiter}.mscz'
+    return f'{curr_dir}/score_{fiter}.mscz'
 
 def convert(inname, outname):
     os.system(f"mscore {inname} -o {outname}")
@@ -16,21 +18,21 @@ def musescore_open(fname):
 def generate_new_midi():
     global fiter
 
-    convert(get_score_file(), 'model_input.mid')
+    convert(get_score_file(), f'{curr_dir}/model_input.mid')
     os.system(f"""
-    ../generate_mid_from_str.py \
+    {curr_dir}/../generate_mid_from_str.py \
         --experiment midi \
-        --input "$(python ../MIDI-LLM-tokenizer/midi_to_str.py model_input.mid)" \
+        --input "$(python {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {curr_dir}/model_input.mid)" \
         --output out_mid.txt \
         --max_length 200 \
         --beam_size 2 \
         --cpu \
         -v
     """)
-    os.system('python ../MIDI-LLM-tokenizer/str_to_midi.py "$(cat out_mid.txt)" --output model_output.mid')
+    os.system(f'python {curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py "$(cat {curr_dir}/out_mid.txt)" --output {curr_dir}/model_output.mid')
 
     fiter += 1
-    convert('model_output.mid', get_score_file())
+    convert(f'{curr_dir}/model_output.mid', get_score_file())
 
 # Initial conversion of the input midi file to the first score file
 midi_file = sys.argv[1]
@@ -56,4 +58,4 @@ while True:
     if res.lower() not in {'y', 'yes'}:
         break
 
-convert(get_score_file(), 'output.mid')
+convert(get_score_file(), '{curr_dir}/output.mid')
