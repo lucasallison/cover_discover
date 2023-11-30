@@ -3,17 +3,23 @@
 import os
 import sys
 import time
+from sys import platform
 
 curr_dir = os.path.dirname(os.path.realpath(__file__))
+
+mscore = 'mscore'
+if platform == 'darwin':
+    mscore = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
+
 
 fiter = 0
 def get_score_file():
     return f'{curr_dir}/score_{fiter}.mscz'
 
 def convert(inname, outname):
-    os.system(f"mscore {inname} -o {outname}")
+    os.system(f'env "{mscore}" {inname} -o {outname}')
 def musescore_open(fname):
-    os.system(f"mscore {fname}")
+    os.system(f'env "{mscore}" {fname}')
 
 def generate_new_midi():
     global fiter
@@ -22,14 +28,14 @@ def generate_new_midi():
     os.system(f"""
     {curr_dir}/../generate_mid_from_str.py \
         --experiment midi \
-        --input "$(python {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {curr_dir}/model_input.mid)" \
+        --input "$(python3 {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {curr_dir}/model_input.mid)" \
         --output out_mid.txt \
         --max_length 200 \
         --beam_size 2 \
         --cpu \
         -v
     """)
-    os.system(f'python {curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py "$(cat {curr_dir}/out_mid.txt)" --output {curr_dir}/model_output.mid')
+    os.system(f'python3 {curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py "$(cat {curr_dir}/out_mid.txt)" --output {curr_dir}/model_output.mid')
 
     fiter += 1
     convert(f'{curr_dir}/model_output.mid', get_score_file())
