@@ -4,9 +4,23 @@ This is the repository that contains our code for the final project of the API c
 
 ## Cover Discover: Running the app
 
-Before running the app make sure the pip requirements are installed (`pip install -r requirements.txt`) and musescore (`sudo apt-get install musescore`). Then it can be run with `python app/main.py`.  
+Make sure all git submodules are fetched, this can be done using:
+```
+git submodule update --init --recursive
+```
 
-For Mac and Linux users: run `python app/play_midi.py my_song.mid` to play the generated midi file.
+Before running the app make sure the pip requirements are installed (`pip install -r requirements.txt`) and musescore (on Debian-based systems: `sudo apt-get install musescore`).
+Then it can be run with `python app/main.py`.
+
+The script can be invoked with two arguments: a project name (can't contain
+spaces) and a MIDI file.
+The project name is required, the MIDI file is optional.
+If a MIDI file is provided, the first invocation of MuseScore opens the provided
+MIDI file, this can be used as a starting point to generate a cover.
+If no MIDI file is provided, an empty MuseScore project is opened as a starting
+point.
+
+For Mac and Linux users: run `python app/play_midi.py app/<project_name>/output.mid` to play the generated midi file.
 
 
 ## Fine-tune GPT-2 to produce midi songs 
