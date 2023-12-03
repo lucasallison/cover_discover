@@ -4,83 +4,145 @@ import os
 import sys
 import time
 from sys import platform
-
-def help():
-    print(f'Usage: python {sys.argv[0]} <project name> [midi file]', file=sys.stderr)
-    print('If no MIDI file is given, the program starts with an empty score.', file=sys.stderr)
-    sys.exit(1)
-
-curr_dir = os.path.dirname(os.path.realpath(__file__))
-
-mscore = 'mscore'
-if platform == 'darwin':
-    mscore = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
-
-if len(sys.argv) <= 1:
-    print('Not enough arguments given.\n', file=sys.stderr)
-    help()
-
-project_name = sys.argv[1]
-project_dir = f'{curr_dir}/{project_name}'
-os.system(f'mkdir -p "{project_dir}"')
+import argparse
 
 fiter = 0
-def get_score_file():
-    return f'{project_dir}/score_{fiter}.mscz'
 
-if len(sys.argv) > 2:
-    # Initial conversion of the input midi file to the first score file
-    midi_file = sys.argv[2]
-    convert(midi_file, get_score_file())
-else:
-    # If no MIDI file is given, start with empty project.
-    os.system(f"cp {curr_dir}/empty.mscz {get_score_file()}")
-
-
-
-def convert(inname, outname):
-    os.system(f'env "{mscore}" {inname} -o {outname}')
-def musescore_open(fname):
-    os.system(f'env "{mscore}" {fname}')
-
-def generate_new_midi():
+def main(args):
     global fiter
 
-    convert(get_score_file(), f'{project_dir}/model_input.mid')
-    os.system(f"""
-    {curr_dir}/../model/generate_mid_from_str.py \
-        --experiment midi \
-        --input "$(python3 {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {project_dir}/model_input.mid)" \
-        --output {project_dir}/out_mid.txt \
-        --max_length 200 \
-        --beam_size 2 \
-        --cpu \
-        -v
-    """)
-    os.system(f'python3 {curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py "$(cat {project_dir}/out_mid.txt)" --output {project_dir}/model_output.mid')
+    def help():
+        args.print_help()
+        sys.exit(1)
 
-    fiter += 1
-    convert(f'{project_dir}/model_output.mid', get_score_file())
+    curr_dir = os.path.dirname(os.path.realpath(__file__))
+
+    mscore = 'mscore'
+    if platform == 'darwin':
+        mscore = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
+
+    project_dir = f'{curr_dir}/{args.project_name}'
+    os.system(f'mkdir -p "{project_dir}"')
+
+    def get_score_file():
+        return f'{project_dir}/score_{fiter}.mscz'
+
+    if args.midi_file is not None:
+        # Initial conversion of the input midi file to the first score file
+        convert(args.midi_file, get_score_file())
+    else:
+        # If no MIDI file is given, start with empty project.
+        os.system(f"cp {curr_dir}/empty.mscz {get_score_file()}")
 
 
-print('We are opening the score in MuseScore, only leave the parts that you want to be included in as inspiritation')
-musescore_open(get_score_file())
-#input('Press enter to continue: ')
 
-while True:
-    print('Generating MIDI based on input...')
+    def convert(inname, outname):
+        os.system(f'env "{mscore}" {inname} -o {outname}')
+    def musescore_open(fname):
+        os.system(f'env "{mscore}" {fname}')
 
-    start = time.monotonic()
-    generate_new_midi()
-    end = time.monotonic() - start
+    def generate_new_midi():
+        global fiter
 
-    print(f'Generating MIDI took {end}s')
+        convert(get_score_file(), f'{project_dir}/model_input.mid')
 
-    print('We are opening the score in MuseScore, where we can repeat the cycle')
+        exp_dir = ''
+        if args.exp_dir is not None:
+            exp_dir = f'--exp_dir "{args.exp_dir}"'
+        experiment = ''
+        if args.experiment is not None:
+            experiment = f'--experiment "{args.experiment}"'
+        model_name = ''
+        if args.model_name is not None:
+            model_name = f'--model_name "{args.model_name}"'
+
+        os.system(f"""
+        {curr_dir}/../model/generate_mid_from_str.py \
+            {exp_dir} \
+            {experiment} \
+            {model_name} \
+            --input "$(python3 {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {project_dir}/model_input.mid)" \
+            --output {project_dir}/out_mid.txt \
+            --max_length 200 \
+            --beam_size 2 \
+            --cpu \
+            -v
+        """)
+
+        os.system(f'python3 {curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py "$(cat {project_dir}/out_mid.txt)" --output {project_dir}/model_output.mid')
+
+        fiter += 1
+        convert(f'{project_dir}/model_output.mid', get_score_file())
+
+
+    print('We are opening the score in MuseScore, only leave the parts that you want to be included in as inspiritation')
     musescore_open(get_score_file())
+    #input('Press enter to continue: ')
 
-    res = input('Do you want to regenerate another pass?: ')
-    if res.lower() not in {'y', 'yes'}:
-        break
+    while True:
+        print('Generating MIDI based on input...')
 
-convert(get_score_file(), f'{project_dir}/output.mid')
+        start = time.monotonic()
+        generate_new_midi()
+        end = time.monotonic() - start
+
+        print(f'Generating MIDI took {end}s')
+
+        print('We are opening the score in MuseScore, where we can repeat the cycle')
+        musescore_open(get_score_file())
+
+        res = input('Do you want to regenerate another pass?: ')
+        if res.lower() not in {'y', 'yes'}:
+            break
+
+    convert(get_score_file(), f'{project_dir}/output.mid')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='CoverDiscover',
+        description='Generate covers based on MIDI input',
+    )
+    parser.add_argument(
+        "--exp_dir",
+        default="experiments",
+        type=str,
+        help="Base directory of the experiment.",
+    )
+    parser.add_argument(
+        "--experiment",
+        type=str,
+        default=None,
+        help="Name of the experiment directory from which the model is loaded if `--model_name` is not specified.",
+    )
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default=None,
+        help="Name of the pretrained model used for prediction if `--experiment` is not specified.",
+    )
+
+    parser.add_argument(
+        'project_name',
+        type=str,
+        help='Name of the cover project',
+    )
+    parser.add_argument(
+        'midi_file',
+        type=str,
+        nargs='?',
+        default=None,
+        help='MIDI file to use as a starting point. If no MIDI file is given, the program starts with an empty score.',
+    )
+
+    args = parser.parse_args()
+
+    if args.experiment is not None and args.model_name is not None:
+        raise ValueError(
+            "The parameters `experiment` and `model_name` are mutually exclusive,\
+            please specify only one of these."
+        )
+
+    elif args.experiment is None and args.model_name is None:
+        raise ValueError("Please specify one of the following parameters: `experiment` OR `model_name`")
+
+    main(args)
