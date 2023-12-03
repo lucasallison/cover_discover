@@ -5,6 +5,12 @@ import sys
 import time
 from sys import platform
 import argparse
+import hashlib
+
+def file_hash(fname):
+    with open(fname, "rb") as f:
+        return hashlib.file_digest(f, "sha256").hexdigest()
+
 
 fiter = 0
 
@@ -89,10 +95,14 @@ def main(args):
         print(f'Generating MIDI took {end}s')
 
         print('We are opening the score in MuseScore, where we can repeat the cycle')
-        musescore_open(get_score_file())
 
-        res = input('Do you want to regenerate another pass?: ')
-        if res.lower() not in {'y', 'yes'}:
+        os.system(f'cp "{get_score_file()}" "{get_score_file()}.bak"')
+
+        hash_before = file_hash(get_score_file())
+        musescore_open(get_score_file())
+        hash_after = file_hash(get_score_file())
+
+        if hash_before == hash_after:
             break
 
     convert(get_score_file(), f'{project_dir}/output.mid')
