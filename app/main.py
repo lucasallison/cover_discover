@@ -33,19 +33,17 @@ def main(args):
     def get_score_file():
         return f'{project_dir}/score_{fiter}.mscz'
 
+    def convert(inname, outname):
+        os.system(f'env "{mscore}" {inname} -o {outname}')
+    def musescore_open(fname):
+        os.system(f'env "{mscore}" {fname}')
+
     if args.midi_file is not None:
         # Initial conversion of the input midi file to the first score file
         convert(args.midi_file, get_score_file())
     else:
         # If no MIDI file is given, start with empty project.
         os.system(f"cp {curr_dir}/empty.mscz {get_score_file()}")
-
-
-
-    def convert(inname, outname):
-        os.system(f'env "{mscore}" {inname} -o {outname}')
-    def musescore_open(fname):
-        os.system(f'env "{mscore}" {fname}')
 
     def generate_new_midi():
         global fiter
