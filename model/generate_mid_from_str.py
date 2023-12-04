@@ -104,6 +104,12 @@ if __name__ == "__main__":
         help="Maximum number of tokens per example",
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.75,
+        help="The value used to modulate the next token probabilities",
+    )
+    parser.add_argument(
         "--checkpoint",
         type=str,
         default="model.ckpt",

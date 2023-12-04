@@ -68,6 +68,7 @@ def main(args):
             --input "$(python3 {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {project_dir}/model_input.mid)" \
             --output {project_dir}/out_mid.txt \
             --max_length 1024 \
+            --temperature 0.75 \
             --beam_size 2 \
             --cpu \
             -v

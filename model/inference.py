@@ -53,6 +53,7 @@ class InferenceModule:
         out = self.model.model.generate(
             input_ids,
             do_sample=True,
+            temperature=self.args.temperature,
             top_k=50,
             max_length=self.args.max_length,
             top_p=0.95,
