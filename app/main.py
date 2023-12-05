@@ -69,6 +69,7 @@ def main(args):
             --output {project_dir}/out_mid.txt \
             --max_length 512 \
             --temperature 0.85 \
+            --seed 0 \
             --beam_size 2 \
             --cpu \
             -v
