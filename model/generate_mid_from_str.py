@@ -12,6 +12,7 @@ import pytorch_lightning as pl
 
 from inference import InferenceModule
 from model import TrainingModule
+from transformers.trainer_utils import set_seed
 
 from pprint import pprint as pp
 
@@ -73,6 +74,13 @@ if __name__ == "__main__":
     curr_dir = os.path.dirname(os.path.realpath(__file__))
 
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--seed",
+        default=None,
+        type=int,
+        help="Seed to use for randomness",
+    )
+
     parser.add_argument(
         "--exp_dir",
         default="experiments",
@@ -150,6 +158,10 @@ if __name__ == "__main__":
     elif args.experiment is None and args.model_name is None:
         raise ValueError("Please specify one of the following parameters: `experiment` OR `model_name`")
 
+    if args.seed is not None:
+        print(f'seed {args.seed} given')
+        np.random.seed(args.seed)
+        set_seed(args.seed)
 
     if args.experiment:
         model_path = os.path.join(curr_dir, args.exp_dir, args.experiment, args.checkpoint)
