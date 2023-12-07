@@ -34,16 +34,16 @@ def main(args):
         return f'{project_dir}/score_{fiter}.mscz'
 
     def convert(inname, outname):
-        os.system(f'env "{mscore}" {inname} -o {outname}')
+        os.system(f'env "{mscore}" "{inname}" -o "{outname}"')
     def musescore_open(fname):
-        os.system(f'env "{mscore}" {fname}')
+        os.system(f'env "{mscore}" "{fname}"')
 
     if args.midi_file is not None:
         # Initial conversion of the input midi file to the first score file
         convert(args.midi_file, get_score_file())
     else:
         # If no MIDI file is given, start with empty project.
-        os.system(f"cp {curr_dir}/empty.mscz {get_score_file()}")
+        os.system(f'cp "{curr_dir}/empty.mscz" "{get_score_file()}"')
 
     def generate_new_midi():
         global fiter
@@ -66,7 +66,7 @@ def main(args):
             {experiment} \
             {model_name} \
             --input "$(python3 {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {project_dir}/model_input.mid)" \
-            --output {project_dir}/out_mid.txt \
+            --output "{project_dir}/out_mid.txt" \
             --max_length 512 \
             --temperature 0.85 \
             --seed 0 \
@@ -75,7 +75,7 @@ def main(args):
             -v
         """)
 
-        os.system(f'python3 {curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py "$(cat {project_dir}/out_mid.txt)" --output {project_dir}/model_output.mid')
+        os.system(f'python3 "{curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py" "$(cat {project_dir}/out_mid.txt)" --output "{project_dir}/model_output.mid"')
 
         fiter += 1
         convert(f'{project_dir}/model_output.mid', get_score_file())
