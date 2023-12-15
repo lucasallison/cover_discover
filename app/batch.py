@@ -1,0 +1,137 @@
+import os
+import os.path
+import sys
+import time
+from sys import platform
+import argparse
+import hashlib
+
+def file_hash(fname):
+    with open(fname, "rb") as f:
+        return hashlib.file_digest(f, "sha256").hexdigest()
+
+
+fiter = 0
+
+def main(args):
+    global fiter
+
+    def help():
+        args.print_help()
+        sys.exit(1)
+
+    curr_dir = os.path.dirname(os.path.realpath(__file__))
+
+    mscore = 'mscore'
+    if os.path.isfile('./mscore'):
+        mscore = './mscore'
+    elif platform == 'darwin':
+        mscore = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
+
+    project_dir = f'{curr_dir}/{args.project_name}'
+    os.system(f'mkdir -p "{project_dir}"')
+
+    def get_score_file():
+        return f'{project_dir}/score_{fiter}.mscz'
+
+    def convert(inname, outname):
+        os.system(f'env "{mscore}" "{inname}" -o "{outname}"')
+    def musescore_open(fname):
+        os.system(f'env "{mscore}" "{fname}"')
+
+    # Initial conversion of the input midi file to the first score file
+    convert(args.midi_file, get_score_file())
+
+    def generate_new_midi(seed):
+        convert(get_score_file(), f'{project_dir}/model_input.mid')
+
+        exp_dir = ''
+        if args.exp_dir is not None:
+            exp_dir = f'--exp_dir "{args.exp_dir}"'
+        experiment = ''
+        if args.experiment is not None:
+            experiment = f'--experiment "{args.experiment}"'
+        model_name = ''
+        if args.model_name is not None:
+            model_name = f'--model_name "{args.model_name}"'
+
+        os.system(f"""
+        {curr_dir}/../model/generate_mid_from_str.py \
+            {exp_dir} \
+            {experiment} \
+            {model_name} \
+            --input "$(python3 {curr_dir}/../MIDI-LLM-tokenizer/midi_to_str.py {project_dir}/model_input.mid)" \
+            --output "{project_dir}/out_mid.txt" \
+            --max_length 512 \
+            --temperature 0.85 \
+            --seed {seed} \
+            --beam_size 2 \
+            --cpu \
+            -v
+        """)
+
+        os.system(f'python3 "{curr_dir}/../MIDI-LLM-tokenizer/str_to_midi.py" "$(cat {project_dir}/out_mid.txt)" --output "{project_dir}/model_output.mid"')
+
+        convert(f'{project_dir}/model_output.mid', f'{project_dir}/output_{seed}.mscz')
+        os.system(f'rm -vf {project_dir}/model_output.mid')
+
+
+    print('Generating MIDI based on input...')
+
+    for seed in range(args.amount):
+        start = time.monotonic()
+        generate_new_midi(seed)
+        end = time.monotonic() - start
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='CoverDiscover',
+        description='Generate covers based on MIDI input',
+    )
+    parser.add_argument(
+        "--exp_dir",
+        default="experiments",
+        type=str,
+        help="Base directory of the experiment.",
+    )
+    parser.add_argument(
+        "--experiment",
+        type=str,
+        default=None,
+        help="Name of the experiment directory from which the model is loaded if `--model_name` is not specified.",
+    )
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default=None,
+        help="Name of the pretrained model used for prediction if `--experiment` is not specified.",
+    )
+
+    parser.add_argument(
+        'project_name',
+        type=str,
+        help='Name of the cover project',
+    )
+    parser.add_argument(
+        'midi_file',
+        type=str,
+        help='MIDI file to use as a starting point. If no MIDI file is given, the program starts with an empty score.',
+    )
+    parser.add_argument(
+        'amount',
+        type=int,
+        help='The amount of versions to generate'
+    )
+
+    args = parser.parse_args()
+
+    if args.experiment is not None and args.model_name is not None:
+        raise ValueError(
+            "The parameters `experiment` and `model_name` are mutually exclusive,\
+            please specify only one of these."
+        )
+
+    elif args.experiment is None and args.model_name is None:
+        raise ValueError("Please specify one of the following parameters: `experiment` OR `model_name`")
+
+    main(args)
