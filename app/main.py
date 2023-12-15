@@ -1,6 +1,7 @@
 #import music21
 #import ms3
 import os
+import os.path
 import sys
 import time
 from sys import platform
@@ -24,7 +25,9 @@ def main(args):
     curr_dir = os.path.dirname(os.path.realpath(__file__))
 
     mscore = 'mscore'
-    if platform == 'darwin':
+    if os.path.isfile('./mscore'):
+        mscore = './mscore'
+    elif platform == 'darwin':
         mscore = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
 
     project_dir = f'{curr_dir}/{args.project_name}'

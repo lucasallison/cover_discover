@@ -9,7 +9,8 @@ Make sure all git submodules are fetched, this can be done using:
 git submodule update --init --recursive
 ```
 
-Before running the app make sure the pip requirements are installed (`pip install -r requirements.txt`) and musescore (on Debian-based systems: `sudo apt-get install musescore`).
+Before making the app, make sure the requirements are installed, on Linux this
+can be done using the `./setup.sh` script.
 Then it can be run with `python app/main.py`.
 
 The script can be invoked with two arguments: a project name (can't contain
