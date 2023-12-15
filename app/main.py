@@ -1,5 +1,3 @@
-#import music21
-#import ms3
 import os
 import os.path
 import sys
