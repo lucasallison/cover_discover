@@ -4,7 +4,7 @@ This is the repository that contains our code for the final project of the API c
 
 ## Cover Discover: Running the app
 
-Make sure all git submodules are fetched, this can be done using:
+If cloned from git, make sure all git submodules are fetched, this can be done using:
 ```
 git submodule update --init --recursive
 ```
